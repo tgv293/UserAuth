@@ -1,0 +1,93 @@
+#root {
+    background: url(../background.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.logo-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.left-header {
+    text-align: left;
+}
+
+.right-header {
+    text-align: right;  ;
+}
+
+.login-header span,
+.reg-header span,
+.rules-box span {
+    color: #779341;
+}
+
+.socialMedia .button {
+    height: 60px;
+    width: 60px;
+    float: left;
+    margin: 0 5px;
+    overflow: hidden;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-out;
+}
+
+.socialMedia .button:hover {
+    width: max-content;
+}
+
+.socialMedia .button .icon {
+    display: inline-block;
+    height: 60px;
+    width: 60px;
+    text-align: center;
+    border-radius: 10px;
+    box-sizing: border-box;
+    line-height: 60px;
+    transition: all 0.3s ease-out;
+}
+
+.socialMedia .button .icon .btn .i {
+    height: 60px;
+    width: 60px;
+}
+
+.socialMedia .button .icon .i {
+    line-height: 60px;
+    transition: all 0.3s ease-out;
+}
+
+.socialMedia .button:nth-child(1) {
+    background: #dd4b39;
+}
+
+.socialMedia .button:nth-child(2) {
+    background: #3b5998;
+}
+
+.socialMedia .button:nth-child(3),
+.socialMedia .button:nth-child(4) {
+    background: #333333;
+}
+
+.socialMedia .button span {
+    font-weight: 500;
+    line-height: 60px;
+    padding-right: 20px;
+    transition: all 0.3s ease-out;
+}
+
+.form-control {
+    align-items: center;
+}
