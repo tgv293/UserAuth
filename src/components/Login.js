@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   MDBBtn,
   MDBContainer,
@@ -14,6 +15,57 @@ import logo from "../logo.png";
 import "./userAuth.css";
 
 function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showError, setShowError] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+  const handleRememberMe = (e) => {
+    setRememberMe(e.target.checked);
+  };
+
+  // Kiểm tra localStorage để xác định xem có thông tin đăng nhập đã lưu hay không
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    const storedPassword = localStorage.getItem("password");
+
+    if (storedUsername && storedPassword) {
+      setUsername(storedUsername);
+      setPassword(storedPassword);
+      setRememberMe(true);
+    }
+  }, []);
+
+  const handleLogin = () => {
+    // Kiểm tra thông tin đăng nhập với cơ sở dữ liệu
+    if (username === "admin" && password === "123456") {
+      // Xử lý logic đăng nhập thành công
+      setShowError(false); // Ẩn thông báo lỗi (nếu có)
+
+      if (rememberMe) {
+        // Lưu thông tin đăng nhập vào localStorage
+        localStorage.setItem("username", username);
+        localStorage.setItem("password", password);
+      } else {
+        // Xóa thông tin đăng nhập khỏi localStorage nếu không ghi nhớ
+        localStorage.removeItem("username");
+        localStorage.removeItem("password");
+      }
+
+      // Tiến hành đăng nhập
+      // ...
+    } else {
+      // Hiển thị thông báo lỗi
+      setShowError(true);
+    }
+  };
+
+  const isFormValid = username.trim() !== "" && password.trim() !== "";
+
   return (
     <MDBContainer fluid>
       <div className="logo-container">
@@ -33,7 +85,7 @@ function Login() {
           >
             <MDBCardBody className="p-5 d-flex flex-column align-items-center mx-auto w-100">
               {/* Header */}
-              <div className="login-header d-flex justify-content-center w-100">
+              <div className="form-header d-flex justify-content-center w-100">
                 <MDBCol col="5" className="left-header">
                   <h1 className="fw-bold mb-2 fs-5">
                     <span>VNPT Shop</span>
@@ -45,7 +97,10 @@ function Login() {
                     Chưa là thành viên?
                   </h1>
                   <h1 className="fs-6">
-                    <span>Đăng ký</span>
+                    {/* Chuyển hướng người dùng sang trang Signup */}
+                    <Link to="/signup">
+                      <span>Đăng ký</span>
+                    </Link>
                   </h1>
                 </MDBCol>
               </div>
@@ -105,27 +160,59 @@ function Login() {
                 labelClass="text-black"
                 label="Tên đăng nhập/Email"
                 id="formControlLg"
-                type="email"
+                type="text"
                 size="lg"
+                onChange={(e) => setUsername(e.target.value)}
               />
               {/* Password */}
-              <MDBInput
-                wrapperClass="mb-4 mx-5 w-100"
-                labelClass="text-black"
-                label="Mật khẩu"
-                id="formControlLg"
-                type="password"
-                size="lg"
-              />
-              {/* Remember me - Forgot Password */}
-              <div className="d-flex justify-content-between mb-4 w-100">
-                <MDBCheckbox
-                  name="flexCheck"
-                  value=""
-                  id="flexCheckDefault"
-                  label="Ghi nhớ đăng nhập"
+              <div
+                className={`input-container d-flex align-items-center w-100 ${
+                  showError ? `mb-0` : `mb-4`
+                }`}
+              >
+                <MDBInput
+                  labelClass="text-black"
+                  label="Mật khẩu"
+                  id="formControlLg"
+                  type={showPassword ? "text" : "password"}
+                  size="lg"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
+                  style={{ maxWidth: "calc(100% - 28px)" }}
                 />
-                <a href="!#">Quên mật khẩu?</a>
+                <MDBIcon
+                  icon={showPassword ? "eye" : "eye-slash"}
+                  onClick={togglePasswordVisibility}
+                  className="eye-icon"
+                  style={{
+                    position: "absolute",
+                    right: "60px",
+                    cursor: "pointer",
+                  }}
+                />
+              </div>
+
+              {/* Hiển thị thông báo lỗi nếu cần */}
+              {showError && (
+                <div className="error-message">
+                  Thông tin không chính xác! Mời nhập lại!
+                </div>
+              )}
+              {/* Remember me - Forgot Password */}
+              <div className="rf d-flex justify-content-between mb-4 w-100">
+                <MDBCheckbox
+                  name="rememberMeCheckbox"
+                  value=""
+                  id="rememberMeCheckbox"
+                  label="Ghi nhớ đăng nhập"
+                  checked={rememberMe}
+                  onChange={handleRememberMe}
+                />
+                <Link to="/forgotpass">
+                  <span>Quên mật khẩu?</span>
+                </Link>
               </div>
               {/* Login Button */}
               <MDBBtn
@@ -134,6 +221,8 @@ function Login() {
                 color="white"
                 size="lg"
                 style={{ background: "#779341", borderRadius: "10px" }}
+                onClick={handleLogin}
+                disabled={!isFormValid} // Vô hiệu hóa nút khi form không hợp lệ
               >
                 Đăng nhập
               </MDBBtn>

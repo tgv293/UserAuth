@@ -22,13 +22,15 @@
 }
 
 .right-header {
-    text-align: right;  ;
+    text-align: right;
+    ;
 }
 
-.login-header span,
-.reg-header span,
-.rules-box span {
+.form-header span,
+.rules-box span,
+.rf span {
     color: #779341;
+    font-weight: 500;
 }
 
 .socialMedia .button {
@@ -90,4 +92,20 @@
 
 .form-control {
     align-items: center;
+}
+
+.signUp-btn span,
+.chPass-btn span {
+    color: white;
+}
+
+.error-message {
+    color: #f00;
+    padding: 5px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.btn[disabled] {
+    color: white;
 }
