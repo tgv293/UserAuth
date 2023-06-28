@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   MDBBtn,
   MDBContainer,
@@ -13,19 +14,26 @@ import {
 } from "mdb-react-ui-kit";
 import logo from "../logo.png";
 import "./userAuth.css";
+import {
+  setUsername,
+  setPassword,
+  setShowError,
+  setRememberMe,
+  setShowPassword,
+} from "../redux/authSlice";
 
 function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showError, setShowError] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const dispatch = useDispatch();
+  const { username, password, showError, rememberMe, showPassword } =
+    useSelector((state) => state.auth);
 
-  const [showPassword, setShowPassword] = useState(false);
+  // Hàm để chuyển đổi hiển thị mật khẩu
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+    dispatch(setShowPassword(!showPassword));
   };
+  // Xử lý khi checkbox "Ghi nhớ đăng nhập" thay đổi
   const handleRememberMe = (e) => {
-    setRememberMe(e.target.checked);
+    dispatch(setRememberMe(e.target.checked));
   };
 
   // Kiểm tra localStorage để xác định xem có thông tin đăng nhập đã lưu hay không
@@ -34,9 +42,9 @@ function Login() {
     const storedPassword = localStorage.getItem("password");
 
     if (storedUsername && storedPassword) {
-      setUsername(storedUsername);
-      setPassword(storedPassword);
-      setRememberMe(true);
+      dispatch(setUsername(storedUsername));
+      dispatch(setPassword(storedPassword));
+      dispatch(setRememberMe(true));
     }
   }, []);
 
@@ -44,7 +52,7 @@ function Login() {
     // Kiểm tra thông tin đăng nhập với cơ sở dữ liệu
     if (username === "admin" && password === "123456") {
       // Xử lý logic đăng nhập thành công
-      setShowError(false); // Ẩn thông báo lỗi (nếu có)
+      dispatch(setShowError(false)); // Ẩn thông báo lỗi (nếu có)
 
       if (rememberMe) {
         // Lưu thông tin đăng nhập vào localStorage
@@ -60,7 +68,7 @@ function Login() {
       // ...
     } else {
       // Hiển thị thông báo lỗi
-      setShowError(true);
+      dispatch(setShowError(true));
     }
   };
 
@@ -162,7 +170,7 @@ function Login() {
                 id="formControlLg"
                 type="text"
                 size="lg"
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => dispatch(setUsername(e.target.value))}
               />
               {/* Password */}
               <div
@@ -178,7 +186,7 @@ function Login() {
                   size="lg"
                   value={password}
                   onChange={(e) => {
-                    setPassword(e.target.value);
+                    dispatch(setPassword(e.target.value));
                   }}
                   style={{ maxWidth: "calc(100% - 28px)" }}
                 />

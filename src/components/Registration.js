@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import {
   MDBBtn,
@@ -13,27 +14,101 @@ import {
 } from "mdb-react-ui-kit";
 import logo from "../logo.png";
 import "./userAuth.css";
+import {
+  setStep,
+  setFirstName,
+  setLastName,
+  setUsername,
+  setEmail,
+  setDateOfBirth,
+  setPhoneNumber,
+  setAddress,
+  setPassword,
+  setRePassword,
+  setIsChecked,
+  setFirstNameError,
+  setLastNameError,
+  setEmailError,
+  setPhoneNumberError,
+  setNextButtonDisabled,
+  setPasswordError,
+  setRePasswordError,
+  setShowPassword,
+  setShowRePassword,
+  setIsFocused,
+} from "../redux/signupSlice";
 
 function Signup() {
-  const [step, setStep] = useState(1);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [address, setAddress] = useState("");
-  const [password, setPassword] = useState("");
-  const [rePassword, setRePassword] = useState("");
-  const [isChecked, setIsChecked] = useState(false);
+  const dispatch = useDispatch();
+  const {
+    step,
+    firstName,
+    lastName,
+    username,
+    email,
+    dateOfBirth,
+    phoneNumber,
+    address,
+    password,
+    rePassword,
+    isChecked,
+    firstNameError,
+    lastNameError,
+    emailError,
+    phoneNumberError,
+    nextButtonDisabled,
+    passwordError,
+    rePasswordError,
+    showPassword,
+    showRePassword,
+    isFocused,
+    currentDate,
+  } = useSelector((state) => state.signup);
 
-  // Bắt lỗi
-  const [firstNameError, setFirstNameError] = useState("");
-  const [lastNameError, setLastNameError] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [phoneNumberError, setPhoneNumberError] = useState("");
-  const [nextButtonDisabled, setNextButtonDisabled] = useState(true);
-  const [passwordError, setPasswordError] = useState("");
-  const [rePasswordError, setRePasswordError] = useState("");
+  // Ẩn/Hiện mật khẩu
+  const togglePasswordVisibility = () => {
+    dispatch(setShowPassword(!showPassword));
+  };
+  const toggleRePasswordVisibility = () => {
+    dispatch(setShowRePassword(!showRePassword));
+  };
+
+  const handleNextStep = (e) => {
+    e.preventDefault();
+    dispatch(setStep(step + 1));
+  };
+
+  useEffect(() => {
+    const isStep1Complete =
+      firstName !== "" &&
+      lastName !== "" &&
+      username !== "" &&
+      email !== "" &&
+      firstNameError === "" &&
+      lastNameError === "" &&
+      emailError === "";
+
+    const isStep2Complete =
+      phoneNumber !== "" && address !== "" && phoneNumberError === "";
+
+    if (step === 1) {
+      dispatch(setNextButtonDisabled(!isStep1Complete));
+    } else if (step === 2) {
+      dispatch(setNextButtonDisabled(!isStep2Complete));
+    }
+  }, [
+    step,
+    firstName,
+    lastName,
+    username,
+    email,
+    firstNameError,
+    lastNameError,
+    emailError,
+    phoneNumber,
+    address,
+    phoneNumberError,
+  ]);
 
   // Hàm kiểm tra định dạng tên
   const validateName = (name) => {
@@ -60,75 +135,119 @@ function Signup() {
   const validatePassword = (password) => {
     return password.length >= 6; // Mật khẩu có ít nhất 6 ký tự
   };
-
-  // Ẩn/Hiện mật khẩu
-  const [showPassword, setShowPassword] = useState(false);
-  const [showRePassword, setShowRePassword] = useState(false);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  //Hàm kiểm tra ấn vào datepicker
+  const handleFocus = () => {
+    dispatch(setIsFocused(true));
   };
-  const toggleRePasswordVisibility = () => {
-    setShowRePassword(!showRePassword);
+  //Hàm kiểm tra rời datepicker
+  const handleBlur = () => {
+    dispatch(setIsFocused(false));
+  };
+  //Kiểm tra input First Name
+  const handleFirstNameChange = (e) => {
+    const firstNameValue = e.target.value;
+    dispatch(setFirstName(firstNameValue));
+
+    if (firstNameValue.length === 0) {
+      dispatch(setFirstNameError("Không được để trống!"));
+    } else if (!validateName(firstNameValue)) {
+      dispatch(setFirstNameError("Vi phạm định dạng!"));
+    } else {
+      dispatch(setFirstNameError(""));
+    }
+  };
+  //Kiểm tra input Last Name
+  const handleLastNameChange = (e) => {
+    const lastNameValue = e.target.value;
+    dispatch(setLastName(lastNameValue));
+
+    if (lastNameValue.length === 0) {
+      dispatch(setLastNameError("Không được để trống!"));
+    } else if (!validateName(lastNameValue)) {
+      dispatch(setLastNameError("Vi phạm định dạng!"));
+    } else {
+      dispatch(setLastNameError(""));
+    }
+  };
+  //Kiểm tra input Username
+  const handleUsernameChange = (e) => {
+    const usernameValue = e.target.value;
+    dispatch(setUsername(usernameValue));
+  };
+  //Kiểm tra input Email
+  const handleEmailChange = (e) => {
+    const emailValue = e.target.value;
+    dispatch(setEmail(emailValue));
+
+    if (emailValue.length === 0) {
+      dispatch(setEmailError("Không được để trống!"));
+    } else if (!validateEmail(emailValue)) {
+      dispatch(setEmailError("Vi phạm định dạng email!"));
+    } else {
+      dispatch(setEmailError(""));
+    }
+  };
+  //Kiểm tra input Phone Number
+  const handlePhoneNumberChange = (e) => {
+    const phoneNumberValue = e.target.value;
+    dispatch(setPhoneNumber(phoneNumberValue));
+
+    if (phoneNumberValue.length === 0) {
+      dispatch(setPhoneNumberError("Không được để trống!"));
+    } else if (!validatePhoneNumber(phoneNumberValue)) {
+      dispatch(setPhoneNumberError("Vi phạm định dạng số điện thoại!"));
+    } else {
+      dispatch(setPhoneNumberError(""));
+    }
+  };
+  //Kiểm tra input Address
+  const handleAddressChange = (e) => {
+    const addressValue = e.target.value;
+    dispatch(setAddress(addressValue));
+  };
+  //Kiểm tra input Password
+  const handlePasswordChange = (e) => {
+    const passwordValue = e.target.value;
+    dispatch(setPassword(passwordValue));
+
+    if (passwordValue.length === 0) {
+      dispatch(setPasswordError("Không được để trống!"));
+    } else if (!validatePassword(passwordValue)) {
+      dispatch(setPasswordError("Mật khẩu phải có ít nhất 6 ký tự!"));
+    } else {
+      dispatch(setPasswordError(""));
+    }
+  };
+  //Kiểm tra input RePassword
+  const handleRePasswordChange = (e) => {
+    const rePasswordValue = e.target.value;
+    dispatch(setRePassword(rePasswordValue));
+
+    if (rePasswordValue.length === 0) {
+      dispatch(setRePasswordError("Không được để trống!"));
+    } else if (rePasswordValue !== password) {
+      dispatch(setRePasswordError("Mật khẩu chưa trùng khớp!"));
+    } else {
+      dispatch(setRePasswordError(""));
+    }
   };
 
-  const handleNextStep = (e) => {
-    e.preventDefault();
-    setStep(step + 1);
+  const handleCheckboxChange = (e) => {
+    const checked = e.target.checked;
+    dispatch(setIsChecked(checked));
   };
 
-  useEffect(() => {
-    // Kiểm tra xem tất cả các trường input có giá trị và không có lỗi hay không
-    const isStep1Complete =
-      firstName !== "" &&
-      lastName !== "" &&
-      username !== "" &&
-      phoneNumber !== "" &&
-      address !== "" &&
-      firstNameError === "" &&
-      lastNameError === "" &&
-      emailError === "" &&
-      phoneNumberError === "";
+  const handleDateChange = (event) => {
+    const selectedDate = event.target.value;
 
-    setNextButtonDisabled(!isStep1Complete);
-  }, [
-    firstName,
-    lastName,
-    username,
-    phoneNumber,
-    address,
-    firstNameError,
-    lastNameError,
-    emailError,
-    phoneNumberError,
-  ]);
-
-  const handleSignup = (e) => {
-    e.preventDefault();
-
-    // Gửi yêu cầu POST lên cơ sở dữ liệu
-    fetch("URL_API", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        username,
-        phoneNumber,
-        address,
-        password,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // Xử lý dữ liệu phản hồi từ cơ sở dữ liệu
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    // Kiểm tra xem ngày được chọn có lớn hơn ngày hiện tại hay không
+    if (selectedDate > currentDate) {
+      // Nếu ngày được chọn lớn hơn, đặt giá trị ngày sinh là ngày hiện tại
+      dispatch(setDateOfBirth(currentDate));
+    } else {
+      // Nếu ngày được chọn nhỏ hơn hoặc bằng ngày hiện tại, đặt giá trị ngày sinh là ngày được chọn
+      dispatch(setDateOfBirth(selectedDate));
+    }
   };
 
   return (
@@ -186,17 +305,7 @@ function Signup() {
                           type="text"
                           size="lg"
                           value={firstName}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setFirstName(value);
-                            if (value === "") {
-                              setFirstNameError("");
-                            } else if (!validateName(value)) {
-                              setFirstNameError("Vi phạm định dạng!");
-                            } else {
-                              setFirstNameError("");
-                            }
-                          }}
+                          onChange={handleFirstNameChange}
                         />
 
                         {firstNameError && (
@@ -215,17 +324,7 @@ function Signup() {
                           type="text"
                           size="lg"
                           value={lastName}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setLastName(value);
-                            if (value === "") {
-                              setLastNameError("");
-                            } else if (!validateName(value)) {
-                              setLastNameError("Vi phạm định dạng!");
-                            } else {
-                              setLastNameError("");
-                            }
-                          }}
+                          onChange={handleLastNameChange}
                         />
 
                         {lastNameError && (
@@ -244,7 +343,7 @@ function Signup() {
                     type="text"
                     size="lg"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={handleUsernameChange}
                   />
                   {/* Email*/}
                   <MDBInput
@@ -256,61 +355,12 @@ function Signup() {
                     type="email"
                     size="lg"
                     value={email}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setEmail(value);
-                      if (value === "") {
-                        setEmailError("");
-                      } else if (!validateEmail(value)) {
-                        setEmailError("Email không hợp lệ!");
-                      } else {
-                        setEmailError("");
-                      }
-                    }}
+                    onChange={handleEmailChange}
                   />
 
                   {emailError && (
                     <div className="error-message">{emailError}</div>
                   )}
-
-                  {/* PhoneNumber */}
-                  <MDBInput
-                    wrapperClass={`mb-${phoneNumberError ? 0 : 4} mx-5 w-100`}
-                    labelClass="text-black"
-                    label="Số điện thoại"
-                    id="form4"
-                    type="tel"
-                    size="lg"
-                    value={phoneNumber}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setPhoneNumber(value);
-
-                      if (value === "") {
-                        setPhoneNumberError("");
-                      } else if (validatePhoneNumber(value)) {
-                        setPhoneNumberError("");
-                      } else {
-                        setPhoneNumberError("Số điện thoại không hợp lệ!");
-                      }
-                    }}
-                  />
-
-                  {phoneNumberError && (
-                    <div className="error-message">{phoneNumberError}</div>
-                  )}
-
-                  {/* Address */}
-                  <MDBInput
-                    wrapperClass="mb-4 mx-5 w-100"
-                    labelClass="text-black"
-                    label="Địa chỉ"
-                    id="formControlRg"
-                    type="text"
-                    size="lg"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                  />
 
                   {/* Next Button */}
                   <MDBBtn
@@ -328,9 +378,68 @@ function Signup() {
               )}
               {step === 2 && (
                 <form
-                  onSubmit={handleSignup}
+                  onSubmit={handleNextStep}
                   className="d-flex flex-column align-items-center mx-auto w-100"
                 >
+                  {/* Date of Birth */}
+                  <MDBInput
+                    wrapperClass="mb-4 mx-5 w-100"
+                    labelClass="text-black"
+                    label="Ngày sinh"
+                    id="formControlRg"
+                    type={isFocused ? "date" : "text"}
+                    size="lg"
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    value={dateOfBirth}
+                    onChange={handleDateChange}
+                    max={currentDate}
+                  />
+
+                  {/* PhoneNumber */}
+                  <MDBInput
+                    wrapperClass={`mb-${phoneNumberError ? 0 : 4} mx-5 w-100`}
+                    labelClass="text-black"
+                    label="Số điện thoại"
+                    id="form4"
+                    type="tel"
+                    size="lg"
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                  />
+
+                  {phoneNumberError && (
+                    <div className="error-message">{phoneNumberError}</div>
+                  )}
+
+                  {/* Address */}
+                  <MDBInput
+                    wrapperClass="mb-4 mx-5 w-100"
+                    labelClass="text-black"
+                    label="Địa chỉ"
+                    id="formControlRg"
+                    type="text"
+                    size="lg"
+                    value={address}
+                    onChange={handleAddressChange}
+                  />
+
+                  {/* Next Button */}
+                  <MDBBtn
+                    outline
+                    className="mx-2 px-5 w-100"
+                    color="white"
+                    size="lg"
+                    style={{ background: "#779341", borderRadius: "10px" }}
+                    type="submit"
+                    disabled={nextButtonDisabled}
+                  >
+                    Tiếp tục
+                  </MDBBtn>
+                </form>
+              )}
+              {step === 3 && (
+                <form className="d-flex flex-column align-items-center mx-auto w-100">
                   {/* Password */}
                   <div
                     className={`input-container d-flex align-items-center w-100 ${
@@ -344,17 +453,7 @@ function Signup() {
                       type={showPassword ? "text" : "password"}
                       size="lg"
                       value={password}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setPassword(value);
-                        if (value === "") {
-                          setPasswordError("");
-                        } else if (!validatePassword(value)) {
-                          setPasswordError("Mật khẩu phải có ít nhất 6 ký tự!");
-                        } else {
-                          setPasswordError("");
-                        }
-                      }}
+                      onChange={handlePasswordChange}
                       style={{ maxWidth: "calc(100% - 28px)" }}
                     />
                     <MDBIcon
@@ -384,17 +483,7 @@ function Signup() {
                       type={showPassword ? "text" : "password"}
                       size="lg"
                       value={rePassword}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setRePassword(value);
-                        if (value === "") {
-                          setRePasswordError("");
-                        } else if (value !== password) {
-                          setRePasswordError("Mật khẩu chưa trùng khớp!");
-                        } else {
-                          setRePasswordError("");
-                        }
-                      }}
+                      onChange={handleRePasswordChange}
                       style={{ maxWidth: "calc(100% - 28px)" }}
                     />
                     <MDBIcon
@@ -419,7 +508,7 @@ function Signup() {
                         value=""
                         id="flexCheckDefault"
                         checked={isChecked}
-                        onChange={() => setIsChecked(!isChecked)}
+                        onChange={handleCheckboxChange}
                       />
                     </div>
                     <div className="ms-2">

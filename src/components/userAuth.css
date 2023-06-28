@@ -23,7 +23,6 @@
 
 .right-header {
     text-align: right;
-    ;
 }
 
 .form-header span,
@@ -60,12 +59,9 @@
     transition: all 0.3s ease-out;
 }
 
-.socialMedia .button .icon .btn .i {
+.socialMedia .button .icon i {
     height: 60px;
     width: 60px;
-}
-
-.socialMedia .button .icon .i {
     line-height: 60px;
     transition: all 0.3s ease-out;
 }

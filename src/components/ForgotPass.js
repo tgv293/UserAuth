@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   MDBBtn,
   MDBContainer,
@@ -12,27 +13,42 @@ import {
 } from "mdb-react-ui-kit";
 import logo from "../logo.png";
 import "./userAuth.css";
+import {
+  setStep,
+  setEmail,
+  setPassword,
+  setRePassword,
+  setOTP,
+  setShowPassword,
+  setShowRePassword,
+  setEmailError,
+  setPasswordError,
+  setRePasswordError,
+  setIsOTPValid,
+} from "../redux/forgotPassSlice";
 
 function ForgotPass() {
-  const [step, setStep] = useState(1);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rePassword, setRePassword] = useState("");
-  const [otp, setOTP] = useState("");
+  const dispatch = useDispatch();
+  const {
+    step,
+    email,
+    password,
+    rePassword,
+    otp,
+    showPassword,
+    showRePassword,
+    emailError,
+    passwordError,
+    rePasswordError,
+    isOTPValid,
+  } = useSelector((state) => state.forgotPass);
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showRePassword, setShowRePassword] = useState(false);
-
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [rePasswordError, setRePasswordError] = useState("");
-  const [isOTPValid, setIsOTPValid] = useState(false);
-
+  // Ẩn/Hiện mật khẩu
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+    dispatch(setShowPassword(!showPassword));
   };
   const toggleRePasswordVisibility = () => {
-    setShowRePassword(!showRePassword);
+    dispatch(setShowRePassword(!showRePassword));
   };
 
   // Hàm kiểm tra định dạng email
@@ -46,24 +62,66 @@ function ForgotPass() {
   const validatePassword = (password) => {
     return password.length >= 6; // Mật khẩu có ít nhất 6 ký tự
   };
-  const [isEmailValid, setIsEmailValid] = useState(false); // Thêm biến state để kiểm tra email hợp lệ
 
   const handleNextStep = (e) => {
     e.preventDefault();
 
-    setStep(step + 1);
+    dispatch(setStep(step + 1));
   };
 
   const handleSubmitOtp = (e) => {
     e.preventDefault();
     if (otp === "123456") {
-      setIsOTPValid(false);
-      setStep(step + 1);
-    } else setIsOTPValid(true);
+      dispatch(setIsOTPValid(false));
+      dispatch(setStep(step + 1));
+    } else dispatch(setIsOTPValid(true));
   };
 
   const handleChangePass = (e) => {
     e.preventDefault();
+  };
+  //Kiểm tra input Email
+  const handleEmailChange = (e) => {
+    const emailValue = e.target.value;
+    dispatch(setEmail(emailValue));
+
+    if (emailValue.length === 0) {
+      dispatch(setEmailError("Không được để trống!"));
+    } else if (!validateEmail(emailValue)) {
+      dispatch(setEmailError("Vi phạm định dạng email!"));
+    } else {
+      dispatch(setEmailError(""));
+    }
+  };
+  //Kiểm tra input OTP
+  const handleOTPChange = (e) => {
+    dispatch(setOTP(e.target.value));
+  };
+  //Kiểm tra input Password
+  const handlePasswordChange = (e) => {
+    const passwordValue = e.target.value;
+    dispatch(setPassword(passwordValue));
+
+    if (passwordValue.length === 0) {
+      dispatch(setPasswordError("Không được để trống!"));
+    } else if (!validatePassword(passwordValue)) {
+      dispatch(setPasswordError("Mật khẩu phải có ít nhất 6 ký tự!"));
+    } else {
+      dispatch(setPasswordError(""));
+    }
+  };
+  //Kiểm tra input RePassword
+  const handleRePasswordChange = (e) => {
+    const rePasswordValue = e.target.value;
+    dispatch(setRePassword(rePasswordValue));
+
+    if (rePasswordValue.length === 0) {
+      dispatch(setRePasswordError("Không được để trống!"));
+    } else if (rePasswordValue !== password) {
+      dispatch(setRePasswordError("Mật khẩu chưa trùng khớp!"));
+    } else {
+      dispatch(setRePasswordError(""));
+    }
   };
 
   return (
@@ -115,20 +173,7 @@ function ForgotPass() {
                     type="email"
                     size="lg"
                     value={email}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setEmail(value);
-                      if (value === "") {
-                        setEmailError("");
-                        setIsEmailValid(false);
-                      } else if (!validateEmail(value)) {
-                        setEmailError("Email không hợp lệ!");
-                        setIsEmailValid(false);
-                      } else {
-                        setEmailError("");
-                        setIsEmailValid(true);
-                      }
-                    }}
+                    onChange={handleEmailChange}
                   />
 
                   {emailError && (
@@ -143,7 +188,7 @@ function ForgotPass() {
                     size="lg"
                     style={{ background: "#779341", borderRadius: "10px" }}
                     type="submit"
-                    disabled={!isEmailValid} // Vô hiệu hóa nút khi email không hợp lệ
+                    disabled={email === "" || emailError} // Vô hiệu hóa nút khi email không hợp lệ
                   >
                     Tiếp tục
                   </MDBBtn>
@@ -172,7 +217,7 @@ function ForgotPass() {
                     type="text"
                     size="lg"
                     value={otp}
-                    onChange={(e) => setOTP(e.target.value)}
+                    onChange={handleOTPChange}
                   />
                   {/* Hiển thị thông báo lỗi nếu cần */}
                   {isOTPValid && (
@@ -215,17 +260,7 @@ function ForgotPass() {
                       type={showPassword ? "text" : "password"}
                       size="lg"
                       value={password}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setPassword(value);
-                        if (value === "") {
-                          setPasswordError("");
-                        } else if (!validatePassword(value)) {
-                          setPasswordError("Mật khẩu phải có ít nhất 6 ký tự!");
-                        } else {
-                          setPasswordError("");
-                        }
-                      }}
+                      onChange={handlePasswordChange}
                       style={{ maxWidth: "calc(100% - 28px)" }}
                     />
                     <MDBIcon
@@ -255,17 +290,7 @@ function ForgotPass() {
                       type={showPassword ? "text" : "password"}
                       size="lg"
                       value={rePassword}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setRePassword(value);
-                        if (value === "") {
-                          setRePasswordError("");
-                        } else if (value !== password) {
-                          setRePasswordError("Mật khẩu chưa trùng khớp!");
-                        } else {
-                          setRePasswordError("");
-                        }
-                      }}
+                      onChange={handleRePasswordChange}
                       style={{ maxWidth: "calc(100% - 28px)" }}
                     />
                     <MDBIcon
