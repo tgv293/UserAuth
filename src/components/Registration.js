@@ -296,11 +296,29 @@ function Signup() {
                   {/* First Name - Last Name */}
                   <MDBRow>
                     <MDBCol col="6">
+                      <MDBCol col="6">
+                        <div className="input-container">
+                          <MDBInput
+                            wrapperClass={`mb-${lastNameError ? 0 : 4}`}
+                            labelClass="text-black"
+                            label="Họ"
+                            id="form2"
+                            type="text"
+                            size="lg"
+                            value={lastName}
+                            onChange={handleLastNameChange}
+                          />
+
+                          {lastNameError && (
+                            <div className="error-message">{lastNameError}</div>
+                          )}
+                        </div>
+                      </MDBCol>
                       <div className="input-container">
                         <MDBInput
                           wrapperClass={`mb-${firstNameError ? 0 : 4}`}
                           labelClass="text-black"
-                          label="Họ"
+                          label="Tên"
                           id="form1"
                           type="text"
                           size="lg"
@@ -310,25 +328,6 @@ function Signup() {
 
                         {firstNameError && (
                           <div className="error-message">{firstNameError}</div>
-                        )}
-                      </div>
-                    </MDBCol>
-
-                    <MDBCol col="6">
-                      <div className="input-container">
-                        <MDBInput
-                          wrapperClass={`mb-${lastNameError ? 0 : 4}`}
-                          labelClass="text-black"
-                          label="Tên"
-                          id="form2"
-                          type="text"
-                          size="lg"
-                          value={lastName}
-                          onChange={handleLastNameChange}
-                        />
-
-                        {lastNameError && (
-                          <div className="error-message">{lastNameError}</div>
                         )}
                       </div>
                     </MDBCol>
