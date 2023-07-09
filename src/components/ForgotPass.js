@@ -1,5 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import emailjs from "emailjs-com";
 import { useDispatch, useSelector } from "react-redux";
 import {
   MDBBtn,
@@ -28,7 +30,10 @@ import {
 } from "../redux/forgotPassSlice";
 
 function ForgotPass() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [sentOTP, setSentOTP] = useState(""); // State lưu mã OTP được gửi đi
+  const [userId, setUserId] = useState("");
   const {
     step,
     email,
@@ -63,23 +68,79 @@ function ForgotPass() {
     return password.length >= 6; // Mật khẩu có ít nhất 6 ký tự
   };
 
-  const handleNextStep = (e) => {
-    e.preventDefault();
-
-    dispatch(setStep(step + 1));
+  const sendOTP = (email, otp) => {
+    // Gửi email sử dụng EmailJS
+    emailjs
+      .send(
+        "service_4sg6rwq",
+        "template_9x5953s",
+        {
+          to_email: email,
+          otp: otp,
+        },
+        "zq7JaoPj6jlVzQqxM"
+      )
+      .then((response) => {
+        console.log("Email sent successfully!", response.status, response.text);
+        setSentOTP(otp); // Cập nhật giá trị của state sentOTP thành mã OTP đã gửi đi
+      })
+      .catch((error) => {
+        console.error("Email sending failed:", error);
+      });
   };
 
-  const handleSubmitOtp = (e) => {
+  const handleNextStep = async (e) => {
     e.preventDefault();
-    if (otp === "123456") {
-      dispatch(setIsOTPValid(false));
-      dispatch(setStep(step + 1));
-    } else dispatch(setIsOTPValid(true));
+
+    if (step === 1) {
+      try {
+        const response = await axios.get(
+          `https://64a4e0ad00c3559aa9bec3c3.mockapi.io/Users?email=${email}`
+        );
+
+        if (response.data.length > 0) {
+          const user = response.data[0];
+          const userId = user.id; // Lấy ID của người dùng
+
+          const otp = generateOTP();
+          sendOTP(email, otp);
+
+          dispatch(setStep(step + 1));
+          setUserId(userId); // Lưu ID của người dùng vào state
+        } else {
+          dispatch(setEmailError("Email không tồn tại"));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
-  const handleChangePass = (e) => {
+  const handleChangePass = async (e) => {
     e.preventDefault();
+
+    try {
+      const response = await axios.put(
+        `https://64a4e0ad00c3559aa9bec3c3.mockapi.io/Users/${userId}`,
+        {
+          passWord: password,
+        }
+      );
+
+      console.log(
+        "Password updated successfully!",
+        response.status,
+        response.data
+      );
+
+      navigate("/");
+      // Thực hiện các xử lý hoặc chuyển đến trang thành công sau khi cập nhật mật khẩu
+    } catch (error) {
+      console.error("Password update failed:", error);
+      // Xử lý lỗi hoặc hiển thị thông báo lỗi cho người dùng
+    }
   };
+
   //Kiểm tra input Email
   const handleEmailChange = (e) => {
     const emailValue = e.target.value;
@@ -121,6 +182,26 @@ function ForgotPass() {
       dispatch(setRePasswordError("Mật khẩu chưa trùng khớp!"));
     } else {
       dispatch(setRePasswordError(""));
+    }
+  };
+
+  function generateOTP() {
+    const digits = "0123456789";
+    let OTP = "";
+    for (let i = 0; i < 6; i++) {
+      OTP += digits[Math.floor(Math.random() * 10)];
+    }
+    return OTP;
+  }
+
+  const handleSubmitOtp = (e) => {
+    e.preventDefault();
+    if (otp === sentOTP) {
+      dispatch(setIsOTPValid(false));
+      dispatch(setStep(step + 1));
+    } else {
+      dispatch(setIsOTPValid(true));
+      dispatch(setStep(step)); // Giữ lại step hiện tại để hiển thị thông báo lỗi
     }
   };
 
@@ -210,7 +291,7 @@ function ForgotPass() {
                   {/* OTP Input */}
                   <MDBInput
                     wrapperClass={`mb-${isOTPValid ? 0 : 4}
-                    mx-5 w-100`}
+      mx-5 w-100`}
                     labelClass="text-black"
                     label="Nhập OTP"
                     id="otpControl"
@@ -322,10 +403,9 @@ function ForgotPass() {
                       passwordError ||
                       rePasswordError
                     }
+                    onClick={handleChangePass}
                   >
-                    <Link to="/">
-                      <span>Xác nhận đổi mật khẩu</span>
-                    </Link>
+                    <span>Xác nhận đổi mật khẩu</span>
                   </MDBBtn>
                 </form>
               )}

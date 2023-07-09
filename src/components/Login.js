@@ -21,6 +21,7 @@ import {
   setRememberMe,
   setShowPassword,
 } from "../redux/authSlice";
+import axios from "axios";
 
 function Login() {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ function Login() {
   const togglePasswordVisibility = () => {
     dispatch(setShowPassword(!showPassword));
   };
+
   // Xử lý khi checkbox "Ghi nhớ đăng nhập" thay đổi
   const handleRememberMe = (e) => {
     dispatch(setRememberMe(e.target.checked));
@@ -49,27 +51,42 @@ function Login() {
   }, []);
 
   const handleLogin = () => {
-    // Kiểm tra thông tin đăng nhập với cơ sở dữ liệu
-    if (username === "admin" && password === "123456") {
-      // Xử lý logic đăng nhập thành công
-      dispatch(setShowError(false)); // Ẩn thông báo lỗi (nếu có)
+    axios
+      .get("https://64a4e0ad00c3559aa9bec3c3.mockapi.io/Users")
+      .then((response) => {
+        const users = response.data;
+        // Kiểm tra thông tin đăng nhập với cơ sở dữ liệu
+        const matchedUser = users.find(
+          (user) =>
+            (user.userName === username || user.Email === username) &&
+            user.passWord === password
+        );
 
-      if (rememberMe) {
-        // Lưu thông tin đăng nhập vào localStorage
-        localStorage.setItem("username", username);
-        localStorage.setItem("password", password);
-      } else {
-        // Xóa thông tin đăng nhập khỏi localStorage nếu không ghi nhớ
-        localStorage.removeItem("username");
-        localStorage.removeItem("password");
-      }
+        if (matchedUser) {
+          // Xử lý logic đăng nhập thành công
+          dispatch(setShowError(false)); // Ẩn thông báo lỗi (nếu có)
 
-      // Tiến hành đăng nhập
-      // ...
-    } else {
-      // Hiển thị thông báo lỗi
-      dispatch(setShowError(true));
-    }
+          if (rememberMe) {
+            // Lưu thông tin đăng nhập vào localStorage
+            localStorage.setItem("username", username);
+            localStorage.setItem("password", password);
+          } else {
+            // Xóa thông tin đăng nhập khỏi localStorage nếu không ghi nhớ
+            localStorage.removeItem("username");
+            localStorage.removeItem("password");
+          }
+
+          console.log("Đăng nhập thành công");
+          // ...
+        } else {
+          // Hiển thị thông báo lỗi
+          dispatch(setShowError(true));
+        }
+      })
+      .catch((error) => {
+        // Xử lý lỗi khi gửi yêu cầu
+        console.error(error);
+      });
   };
 
   const isFormValid = username.trim() !== "" && password.trim() !== "";
@@ -215,9 +232,10 @@ function Login() {
                   value=""
                   id="rememberMeCheckbox"
                   label="Ghi nhớ đăng nhập"
-                  checked={rememberMe}
+                  defaultChecked={rememberMe}
                   onChange={handleRememberMe}
                 />
+
                 <Link to="/forgotpass">
                   <span>Quên mật khẩu?</span>
                 </Link>

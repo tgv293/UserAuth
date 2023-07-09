@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   MDBBtn,
   MDBContainer,
@@ -40,6 +41,7 @@ import {
 
 function Signup() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     step,
     firstName,
@@ -250,6 +252,33 @@ function Signup() {
     }
   };
 
+  const handleSubmit = async () => {
+    const formattedBirthday = dateOfBirth.split("-").reverse().join("/");
+    const newUser = {
+      lastName: lastName,
+      firstName: firstName,
+      userName: username,
+      Email: email,
+      phoneNumber: phoneNumber,
+      Birthday: dateOfBirth,
+      Role: "User",
+      Address: address,
+      passWord: password,
+    };
+
+    try {
+      const response = await axios.post(
+        "https://64a4e0ad00c3559aa9bec3c3.mockapi.io/Users",
+        newUser
+      );
+      console.log(response.data); // Log thông tin user đã tạo thành công
+      // Reset form và chuyển đến trang thành công
+      navigate("/");
+    } catch (error) {
+      console.log(error); // Log lỗi nếu có
+    }
+  };
+
   return (
     <MDBContainer fluid>
       <div className="logo-container">
@@ -296,29 +325,11 @@ function Signup() {
                   {/* First Name - Last Name */}
                   <MDBRow>
                     <MDBCol col="6">
-                      <MDBCol col="6">
-                        <div className="input-container">
-                          <MDBInput
-                            wrapperClass={`mb-${lastNameError ? 0 : 4}`}
-                            labelClass="text-black"
-                            label="Họ"
-                            id="form2"
-                            type="text"
-                            size="lg"
-                            value={lastName}
-                            onChange={handleLastNameChange}
-                          />
-
-                          {lastNameError && (
-                            <div className="error-message">{lastNameError}</div>
-                          )}
-                        </div>
-                      </MDBCol>
                       <div className="input-container">
                         <MDBInput
                           wrapperClass={`mb-${firstNameError ? 0 : 4}`}
                           labelClass="text-black"
-                          label="Tên"
+                          label="Họ"
                           id="form1"
                           type="text"
                           size="lg"
@@ -328,6 +339,25 @@ function Signup() {
 
                         {firstNameError && (
                           <div className="error-message">{firstNameError}</div>
+                        )}
+                      </div>
+                    </MDBCol>
+
+                    <MDBCol col="6">
+                      <div className="input-container">
+                        <MDBInput
+                          wrapperClass={`mb-${lastNameError ? 0 : 4}`}
+                          labelClass="text-black"
+                          label="Tên"
+                          id="form2"
+                          type="text"
+                          size="lg"
+                          value={lastName}
+                          onChange={handleLastNameChange}
+                        />
+
+                        {lastNameError && (
+                          <div className="error-message">{lastNameError}</div>
                         )}
                       </div>
                     </MDBCol>
@@ -533,10 +563,9 @@ function Signup() {
                       rePasswordError ||
                       !isChecked
                     }
+                    onClick={handleSubmit} // Thêm onClick event handler vào nút Đăng ký
                   >
-                    <Link to="/">
-                      <span>Đăng ký</span>
-                    </Link>
+                    <span>Đăng ký</span>
                   </MDBBtn>
                 </form>
               )}
