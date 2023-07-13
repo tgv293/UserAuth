@@ -253,14 +253,14 @@ function Signup() {
   };
 
   const handleSubmit = async () => {
-    const formattedBirthday = dateOfBirth.split("-").reverse().join("/");
+    const formattedBirthdate = dateOfBirth.split("-").reverse().join("/");
     const newUser = {
       lastName: lastName,
       firstName: firstName,
       userName: username,
       Email: email,
       phoneNumber: phoneNumber,
-      Birthday: dateOfBirth,
+      Birthdate: dateOfBirth,
       Role: "User",
       Address: address,
       passWord: password,
