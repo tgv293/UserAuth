@@ -88,7 +88,7 @@ function Login() {
         console.error(error);
       });
   };
-
+  //Kiểm tra nhập liệu có rỗng hay không
   const isFormValid = username.trim() !== "" && password.trim() !== "";
 
   return (
