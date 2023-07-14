@@ -74,7 +74,7 @@ function Signup() {
   const toggleRePasswordVisibility = () => {
     dispatch(setShowRePassword(!showRePassword));
   };
-
+  //Xử lý chuyển đổi giữa các bước
   const handleNextStep = (e) => {
     e.preventDefault();
     dispatch(setStep(step + 1));
