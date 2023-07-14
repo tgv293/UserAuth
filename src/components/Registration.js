@@ -260,7 +260,7 @@ function Signup() {
       userName: username,
       Email: email,
       phoneNumber: phoneNumber,
-      Birthdate: dateOfBirth,
+      Birthdate: formattedBirthdate,
       Role: "User",
       Address: address,
       passWord: password,
