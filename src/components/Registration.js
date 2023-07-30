@@ -468,7 +468,10 @@ function Signup() {
                 </form>
               )}
               {step === 3 && (
-                <form className="d-flex flex-column align-items-center mx-auto w-100">
+                <form
+                  onSubmit={handleSubmit}
+                  className="d-flex flex-column align-items-center mx-auto w-100"
+                >
                   {/* Password */}
                   <div
                     className={`input-container d-flex align-items-center w-100 ${
@@ -509,7 +512,7 @@ function Signup() {
                       labelClass="text-black"
                       label="Nhập lại mật khẩu"
                       id="formControlLg"
-                      type={showPassword ? "text" : "password"}
+                      type={showRePassword ? "text" : "password"}
                       size="lg"
                       value={rePassword}
                       onChange={handleRePasswordChange}
